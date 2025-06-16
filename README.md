@@ -6,25 +6,25 @@
 ---
 
 
-## 🧠 **Key Features**
+## **Key Features**
 
-### 🔍 Real-time Fraud Detection Simulation
+###  Real-time Fraud Detection Simulation
 - Analyze transactions with customizable parameters  
 - Get instant risk assessment with detailed contributing factors  
 - Three-tier risk classification:  
-  - ✅ Safe  
-  - ⚠️ Suspicious  
-  - ❌ Fraud  
+  -  Safe  
+  - Suspicious  
+  -  Fraud  
 
 
-### 📱 Responsive Design
+###  Responsive Design
 - Fully responsive layout: desktop, tablet, and mobile  
 - Interactive elements with smooth transitions and animations  
 - Clean, modern user interface  
 
 ---
 
-## 💻 **Technologies Used**
+##  **Technologies Used**
 
 ### **Frontend**
 - HTML5  
