@@ -13,7 +13,6 @@
 - Get instant risk assessment with detailed contributing factors  
 - Three-tier risk classification:  
   -  Safe  
-  - Suspicious  
   -  Fraud  
 
 
