@@ -1,4 +1,4 @@
-# AI-Powered-Fraud-Detection
+# Fraud-Detection
 
 
 **FraudShield AI** is a modern, responsive web application that demonstrates an **AI-powered fraud detection system**. It showcases how artificial intelligence and machine learning can be used to identify and prevent **synthetic identity fraud** in real-time.
