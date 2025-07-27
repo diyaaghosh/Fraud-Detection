@@ -1,5 +1,4 @@
 
-
 document.querySelector('.mobile-menu').addEventListener('click', function() {
     document.querySelector('.nav-links').classList.toggle('active');
 });
@@ -39,91 +38,124 @@ fadeElements.forEach(fadeElement => {
 
 document.getElementById('fraudForm').addEventListener('submit', function(e) {
     e.preventDefault();
+    
+  
+    const amount = parseFloat(document.getElementById('amount').value);
+    const location = document.getElementById('location').value;
+    const device = document.getElementById('device').value;
+    const behavior = document.getElementById('behavior').value;
+    const history = document.getElementById('history').value;
+    
+ 
+    let riskScore = 0;
+    const riskFactors = [];
+    
 
-const data = {
-  proposed_credit_limit: parseFloat(document.getElementById('proposed_credit_limit').value),
-  device_os: document.getElementById('device_os').value,
-  source: document.getElementById('source').value,
-  email: document.getElementById('email').value,
-  phone_number: document.getElementById('phone_number').value,
-  device_id: document.getElementById('device_id').value,
-  ip_address: document.getElementById('ip_address').value,
-  session_length_in_minutes: parseFloat(document.getElementById('session_length_in_minutes').value),
-  customer_age: parseInt(document.getElementById('customer_age').value),
-  current_address_months_count: parseInt(document.getElementById('current_address_months_count').value),
-  income: parseFloat(document.getElementById('income').value),
-  name_email_similarity: parseFloat(document.getElementById('name_email_similarity').value),
-  prev_address_months_count: parseInt(document.getElementById('prev_address_months_count').value),
-  velocity_24h: parseInt(document.getElementById('velocity_24h').value),
-  velocity_4w: parseInt(document.getElementById('velocity_4w').value),
-  fraud_neighbors: parseInt(document.getElementById('fraud_neighbors').value),
-  fraud_ratio_neighbors: parseFloat(document.getElementById('fraud_ratio_neighbors').value),
-  component_size: parseInt(document.getElementById('component_size').value),
-  days_since_request: parseInt(document.getElementById('days_since_request').value),
-  intended_balcon_amount: parseFloat(document.getElementById('intended_balcon_amount').value),
-  zip_count_4w: parseInt(document.getElementById('zip_count_4w').value),
-  velocity_6h: parseInt(document.getElementById('velocity_6h').value),
-  bank_branch_count_8w: parseInt(document.getElementById('bank_branch_count_8w').value),
-  date_of_birth_distinct_emails_4w: parseInt(document.getElementById('date_of_birth_distinct_emails_4w').value),
-  credit_risk_score: parseInt(document.getElementById('credit_risk_score').value),
-  email_is_free: parseInt(document.getElementById('email_is_free').value),
-  phone_home_valid: parseInt(document.getElementById('phone_home_valid').value),
-  phone_mobile_valid: parseInt(document.getElementById('phone_mobile_valid').value),
-  bank_months_count: parseInt(document.getElementById('bank_months_count').value),
-  has_other_cards: parseInt(document.getElementById('has_other_cards').value),
-  foreign_request: parseInt(document.getElementById('foreign_request').value),
-  keep_alive_session: parseInt(document.getElementById('keep_alive_session').value),
-  device_distinct_emails_8w: parseInt(document.getElementById('device_distinct_emails_8w').value),
-  device_fraud_count: parseInt(document.getElementById('device_fraud_count').value),
-  month: parseInt(document.getElementById('month').value),
-  num_connections: parseInt(document.getElementById('num_connections').value),
-  num_shared_identifiers: parseInt(document.getElementById('num_shared_identifiers').value)
-};
+    if (amount > 10000) {
+        riskScore += 30;
+        riskFactors.push('High transaction amount ($' + amount.toLocaleString() + ')');
+    } else if (amount > 5000) {
+        riskScore += 15;
+        riskFactors.push('Medium transaction amount ($' + amount.toLocaleString() + ')');
+    }
+    
 
+    if (location === 'foreign') {
+        riskScore += 20;
+        riskFactors.push('Foreign transaction location');
+    } else if (location === 'high-risk') {
+        riskScore += 40;
+        riskFactors.push('High-risk country location');
+    }
+    
 
-    fetch('http://127.0.0.1:5000/predict', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(result => {
-        const statusIcon = document.getElementById('statusIcon');
-        const statusText = document.getElementById('statusText');
-        const statusDescription = document.getElementById('statusDescription');
-        const riskFactorsList = document.getElementById('riskFactors');
+    if (device === 'new') {
+        riskScore += 15;
+        riskFactors.push('New device detected');
+    } else if (device === 'emulator') {
+        riskScore += 35;
+        riskFactors.push('Emulator/VPN detected');
+    }
+    
 
-        riskFactorsList.innerHTML = '';
+    if (behavior === 'rushed') {
+        riskScore += 20;
+        riskFactors.push('Rushed transaction behavior');
+    } else if (behavior === 'atypical') {
+        riskScore += 30;
+        riskFactors.push('Atypical user behavior');
+    }
+    
 
-        if (result.error) {
-            statusText.textContent = 'Error';
-            statusDescription.textContent = result.error;
-            statusIcon.innerHTML = '<i class="fas fa-times-circle"></i>';
-            statusIcon.className = 'status-icon fraud';
-            return;
-        }
-
-        if (result.is_fraud) {
-            statusText.textContent = 'Fraud Detected';
-            statusDescription.textContent = 'Score: ' + result.ensemble_score;
-            statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
-            statusIcon.className = 'status-icon fraud';
-        } else {
-            statusText.textContent = 'Transaction Safe';
-            statusDescription.textContent = 'Score: ' + result.ensemble_score;
-            statusIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
-            statusIcon.className = 'status-icon safe';
-        }
-
-        result.reasons.forEach(reason => {
+    if (history === 'new') {
+        riskScore += 10;
+        riskFactors.push('New customer profile');
+    } else if (history === 'suspicious') {
+        riskScore += 30;
+        riskFactors.push('Previous suspicious activity');
+    }
+    
+  
+    const statusIcon = document.getElementById('statusIcon');
+    const statusText = document.getElementById('statusText');
+    const statusDescription = document.getElementById('statusDescription');
+    const riskFactorsList = document.getElementById('riskFactors');
+    
+    riskFactorsList.innerHTML = '';
+    
+    if (riskScore > 70) {
+    
+        statusIcon.className = 'status-icon fraud';
+        statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+        statusText.textContent = 'Fraud Detected';
+        statusDescription.textContent = 'This transaction has been flagged as potentially fraudulent.';
+        
+        riskFactors.forEach(factor => {
             const li = document.createElement('li');
-            li.innerHTML = '<i class="fas fa-info-circle"></i> ' + reason;
+            li.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + factor;
             riskFactorsList.appendChild(li);
         });
-    })
-    .catch(err => {
-        alert('Error contacting backend: ' + err);
-    });
+        
+  
+        const li = document.createElement('li');
+        li.innerHTML = '<i class="fas fa-shield-alt"></i> <strong>Recommended action:</strong> Block transaction and flag account for review';
+        riskFactorsList.appendChild(li);
+    } else if (riskScore > 30) {
+      
+        statusIcon.className = 'status-icon suspicious';
+        statusIcon.innerHTML = '<i class="fas fa-question-circle"></i>';
+        statusText.textContent = 'Suspicious Activity';
+        statusDescription.textContent = 'This transaction shows signs of potential fraud. Additional verification recommended.';
+        
+        riskFactors.forEach(factor => {
+            const li = document.createElement('li');
+            li.innerHTML = '<i class="fas fa-question-circle"></i> ' + factor;
+            riskFactorsList.appendChild(li);
+        });
+        
+   
+        const li = document.createElement('li');
+        li.innerHTML = '<i class="fas fa-user-check"></i> <strong>Recommended action:</strong> Request additional authentication';
+        riskFactorsList.appendChild(li);
+    } else {
+
+        statusIcon.className = 'status-icon safe';
+        statusIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+        statusText.textContent = 'Transaction Safe';
+        statusDescription.textContent = 'No significant fraud indicators detected.';
+        
+        if (riskFactors.length > 0) {
+            riskFactors.forEach(factor => {
+                const li = document.createElement('li');
+                li.innerHTML = '<i class="fas fa-info-circle"></i> ' + factor;
+                riskFactorsList.appendChild(li);
+            });
+        } else {
+            const li = document.createElement('li');
+            li.innerHTML = '<i class="fas fa-thumbs-up"></i> No significant risk factors detected';
+            riskFactorsList.appendChild(li);
+        }
+    }
 });
 
 
