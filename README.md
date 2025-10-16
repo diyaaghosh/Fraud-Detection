@@ -52,5 +52,5 @@ This project is a **machine learning–based fraud detection system** designed t
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/diyaaghosh/Fraud-Detection
    cd fraud-detection-app
