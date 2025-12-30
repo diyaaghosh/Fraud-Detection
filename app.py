@@ -1,74 +1,102 @@
-from flask import Flask, render_template, request, jsonify
-import pickle
-import numpy as np
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
+from flask import Flask, request, jsonify, render_template
 import joblib
+import numpy as np
+
 app = Flask(__name__)
+model = joblib.load("model.pkl")
 
-with open('model.pkl', 'rb') as file:
-    model = joblib.load(file)
+FEATURE_COLUMNS = [
+'Transaction_Amount', 'Account_Balance', 'IP_Address_Flag',
+'Previous_Fraudulent_Activity', 'Daily_Transaction_Count', 'Risk_Score',
+'Is_Weekend', 'avg_trans_amount', 'std_trans_amount', 'max_trans_amount',
+'total_transactions', 'avg_daily_transactions', 'amount_deviation',
+'user_transaction_count', 'high_activity_user',
+'Merchant_Category_Clothing', 'Merchant_Category_Electronics',
+'Merchant_Category_Groceries', 'Merchant_Category_Restaurants',
+'Merchant_Category_Travel',
+'Device_Type_Laptop', 'Device_Type_Mobile', 'Device_Type_Tablet',
+'Transaction_Type_ATM Withdrawal', 'Transaction_Type_Bank Transfer',
+'Transaction_Type_Online', 'Transaction_Type_POS',
+'Card_Type_Amex', 'Card_Type_Discover', 'Card_Type_Mastercard',
+'Card_Type_Visa',
+'card_age_very_new', 'card_age_new', 'card_age_established',
+'card_age_veteran',
+'Avg_Transaction_Amount_7d_Scaled', 'User_Transaction_Deviation',
+'User_Transaction_Deviation_Scaled', 'account_balanced_scaled',
+'balance_to_avg_transaction', 'High_Balance_Flag', 'Low_Balance_Flag',
+'Auth_Method_Biometric', 'Auth_Method_OTP', 'Auth_Method_PIN',
+'Auth_Method_Password',
+'Location_London', 'Location_Mumbai', 'Location_New York',
+'Location_Sydney', 'Location_Tokyo', 'Location_TargetEnc',
+'Transaction_Distance_Scaled', 'high_distance_transaction',
+'Distance_Deviation',
+'transaction_hour', 'day_of_week', 'day', 'month',
+'time_diff_b/w_two_cons_transaction_per_user',
+'time_diff_b/w_two_cons_transaction_per_userscaled',
+'is_night'
+]
 
-@app.route('/')
-def home():
-    return render_template('index.html')
 
-@app.route('/predict', methods=['POST'])
+@app.route("/")
+def index():
+    return render_template("index.html")
+@app.route("/predict", methods=["POST"])
 def predict():
-    try:
-        data = request.get_json()
+    data = request.json
 
-      
-        transaction_amount = float(data.get('transaction_amount', 0))
-        num_txn_24h = float(data.get('num_txn_24h', 0))
-        num_txn_7d = float(data.get('num_txn_7d', 0))
-        failed_txn_count_7d = float(data.get('failed_txn_count_7d', 0))
-        device_trust_score = float(data.get('device_trust_score', 1))
-        ip_geo_distance_from_home_km = float(data.get('ip_geo_distance_from_home_km', 0))
-        total_fraud_count = float(data.get('total_fraud_count', 0))
 
-       
-        location_flag = float(data.get('location_flag', 0))
-        device_type_flag = float(data.get('device_type_flag', 0))
-        behavior_flag = float(data.get('behavior_flag', 0))
-        history_flag = float(data.get('history_flag', 0))
+    features = {col: 0 for col in FEATURE_COLUMNS}
 
-       
-        features = np.array([[transaction_amount, num_txn_24h, num_txn_7d,
-                              failed_txn_count_7d, device_trust_score,
-                              ip_geo_distance_from_home_km, total_fraud_count,
-                              location_flag, device_type_flag, behavior_flag, history_flag]])
+    raw_amount = float(data['amount'])
+    raw_risk = float(data['risk'])
+    raw_daily_tx = int(data['daily_tx'])
+    raw_prev_fraud = int(data['prev_fraud'])
+    hour = int(data['hour'])
 
-       
-        prediction = int(model.predict(features)[0])
+    features['Transaction_Amount'] = 1 if raw_amount > 30000 else 0
+    features['Risk_Score'] = 1 if raw_risk > 0.7 else 0
+    features['Daily_Transaction_Count'] = 1 if raw_daily_tx > 15 else 0
+    features['Previous_Fraudulent_Activity'] = raw_prev_fraud
+    features['Is_Weekend'] = int(data['weekend'])
+    features['transaction_hour'] = 1 if hour >= 22 or hour <= 5 else 0
+    features['is_night'] = features['transaction_hour']
 
-        if hasattr(model, "predict_proba"):
-            probability = float(model.predict_proba(features)[0][1])
-        else:
-            probability = 1.0 if prediction == 1 else 0.0
+  
+    features[f"Device_Type_{data['device']}"] = 1
+    features[f"Location_{data['location']}"] = 1
 
-        reason = []
-        if failed_txn_count_7d > 5:
-            reason.append("High number of failed transactions recently")
-        if device_trust_score < 0.5:
-            reason.append("Untrusted or unknown device")
-        if ip_geo_distance_from_home_km > 100:
-            reason.append("Suspicious location far from usual area")
-        if total_fraud_count > 0:
-            reason.append("Past fraud history found")
-        if transaction_amount > 5000:
-            reason.append("Unusually high transaction amount")
+    features['high_activity_user'] = 1 if raw_daily_tx > 20 else 0
+    features['High_Balance_Flag'] = 1
+    features['Low_Balance_Flag'] = 0
 
-        if not reason:
-            reason.append("No obvious fraud pattern detected")
 
-        return jsonify({
-            'prediction': prediction,
-            'probability': probability,
-            'reason': ', '.join(reason),
-            'features': data
-        })
+    X = np.array([[features[col] for col in FEATURE_COLUMNS]])
 
-    except Exception as e:
-        return jsonify({'error': str(e)})
+    pred = int(model.predict(X)[0])
+    prob = float(model.predict_proba(X)[0][1])
 
-if __name__ == '__main__':
-    app.run(debug=True)
+    if features['Risk_Score'] == 1 and features['Previous_Fraudulent_Activity'] == 1:
+        pred = 1
+        prob = 0.99
+
+    
+    reasons = []
+    if raw_amount > 30000:
+        reasons.append("Unusually high transaction amount")
+    if raw_prev_fraud == 1:
+        reasons.append("User has previous fraudulent activity")
+    if raw_daily_tx > 20:
+        reasons.append("High number of transactions in short time")
+    if hour >= 22 or hour <= 5:
+        reasons.append("Transaction occurred at night")
+
+    return jsonify({
+        "fraud": bool(pred),
+        "confidence": round(prob, 3),
+        "reasons": reasons
+    })
+if __name__ == "__main__":
+    print("Running Flask app...")
+    app.run(host="0.0.0.0", port=5000, debug=True)
