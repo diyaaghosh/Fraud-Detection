@@ -112,10 +112,9 @@ const risk = calculateRiskScore(inputs);
         
        
         setTimeout(() => {
-      
-            fetch("/predict", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+      fetch("https://diyaghosh16.pythonanywhere.com/predict", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     amount: Number(amount),
                     risk: Number(risk),
@@ -194,3 +193,4 @@ const risk = calculateRiskScore(inputs);
             document.querySelector('.hero-content').style.transform = 'translateY(0)';
         }, 100);
     });
+
