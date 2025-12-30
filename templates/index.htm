@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FraudShield AI – Live Fraud Detection</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <script defer src="/static/script.js"></script>
+</head>
+<body>
+<header class="header">
+    <div class="container nav">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <span>FraudShield AI</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#demo">Live Demo</a></li>
+            <li><a href="#tech">Technology</a></li>
+        </ul>
+    </div>
+</header>
+<section class="hero" id="home">
+    <div class="container hero-content">
+        <h1>AI-Powered Fraud Detection</h1>
+        <p>Real-time detection of high-risk and fraudulent transactions using advanced machine learning algorithms and behavioral analysis.</p>
+        <a href="#demo" class="btn btn-primary">
+            <span>Try Live Demo</span>
+            <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+</section>
+<section class="section demo" id="demo">
+    <div class="container">
+        <h2 class="section-title">Live Transaction Analysis</h2>
+        <div class="demo-container">
+            <div class="demo-form">
+                <h2><i class="fas fa-chart-line"></i> Transaction Details</h2>
+                <div class="form-group">
+                    <label><i class="fas fa-money-bill-wave"></i> Transaction Amount ($)</label>
+                    <input type="number" id="amount" placeholder="e.g. 75000" min="0" step="100" required>
+                </div>
+               
+                <div class="form-group">
+                    <label><i class="fas fa-history"></i> Daily Transaction Count</label>
+                    <input type="number" id="daily_tx" placeholder="e.g. 35" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-mobile-alt"></i> Device Type</label>
+                    <select id="device">
+                        <option value="Mobile">Mobile</option>
+                        <option value="Laptop">Laptop</option>
+                        <option value="Tablet">Tablet</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Transaction Location</label>
+                    <select id="location">
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="London">London</option>
+                        <option value="New York">New York</option>
+                        <option value="Tokyo">Tokyo</option>
+                        <option value="Sydney">Sydney</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-user-shield"></i> Previous Fraud History</label>
+                    <select id="prev_fraud">
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-clock"></i> Transaction Hour (0–23)</label>
+                    <input type="number" id="hour" placeholder="e.g. 2" min="0" max="23" required>
+                </div>
+                <button class="btn btn-primary" onclick="checkFraud()">
+                    <i class="fas fa-search"></i>
+                    <span>Analyze Transaction</span>
+                </button>
+            </div>
+            <div class="demo-result">
+                <div id="result">
+                    <div class="result-status">
+                        <div class="status-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Awaiting Analysis</h3>
+                        <p>Submit transaction details to detect fraud patterns.</p>
+                        <p class="loading-text" style="margin-top: 20px; color: var(--gray); font-size: 0.9rem;">
+                            <i class="fas fa-sync-alt fa-spin"></i> Ready to analyze
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+<section class="section" id="tech">
+    <div class="container">
+        <h2 class="section-title">Advanced Technology Stack</h2>
+        <div class="tech-grid">
+            <div class="tech-card">
+                <i class="fas fa-brain"></i>
+                <h3>Machine Learning</h3>
+                <p>Advanced ML models trained on millions of transactions</p>
+            </div>
+            <div class="tech-card">
+                <i class="fas fa-bolt"></i>
+                <h3>Real-Time Scoring</h3>
+                <p>Sub-second fraud detection with 80% accuracy</p>
+            </div>
+            <div class="tech-card">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Fraud Prevention</h3>
+                <p>Proactive protection with behavioral analysis</p>
+            </div>
+        </div>
+    </div>
+</section>
+<footer class="footer">
+    <div class="container">
+        <p>© 2025 FraudShield AI. All rights reserved.</p>
+        <p style="margin-top: 10px; font-size: 0.8rem; color: var(--gray);">
+            Protecting financial systems with artificial intelligence
+        </p>
+    </div>
+</footer>
+</body>
+</html>
