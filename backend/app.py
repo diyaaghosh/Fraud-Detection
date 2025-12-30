@@ -10,7 +10,7 @@ app = Flask(__name__)
 CORS(app)  # ✅ REQUIRED for Vercel frontend
 
 # Load model
-model = joblib.load("model.pkl")
+model = joblib.load("backend/model.pkl")
 
 FEATURE_COLUMNS = [
     'Transaction_Amount', 'Account_Balance', 'IP_Address_Flag',
@@ -108,3 +108,4 @@ def predict():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
